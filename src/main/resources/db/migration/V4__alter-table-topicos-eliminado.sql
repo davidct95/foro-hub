@@ -1,0 +1,1 @@
+ALTER TABLE topicos ADD eliminado BOOLEAN DEFAULT FALSE;

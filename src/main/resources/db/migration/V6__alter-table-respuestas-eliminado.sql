@@ -1,0 +1,1 @@
+ALTER TABLE respuestas ADD eliminado BOOLEAN DEFAULT FALSE;
