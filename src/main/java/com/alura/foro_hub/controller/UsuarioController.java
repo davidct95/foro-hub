@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,10 +28,13 @@ public class UsuarioController {
     @Autowired
     PerfilService perfilService;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     @PostMapping
     public ResponseEntity<String> crearUsuario(@RequestBody @Valid DatosRegistroUsuario datosRegistroUsuario) {
         Perfil perfil = perfilService.obtenerOCrearPerfil(TipoPerfil.USUARIO);
-        Usuario usuario = new Usuario(datosRegistroUsuario, perfil);
+        Usuario usuario = new Usuario(datosRegistroUsuario, perfil, passwordEncoder);
         usuarioRepository.save(usuario);
         return ResponseEntity.status(HttpStatus.OK).body("Usuario creado Correctamente");
     }

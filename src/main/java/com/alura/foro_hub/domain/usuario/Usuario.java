@@ -10,9 +10,14 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
@@ -20,7 +25,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @EqualsAndHashCode(of = "id")
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,7 +34,7 @@ public class Usuario {
     private String contrasena;
     @OneToMany(mappedBy = "usuario")
     private List<Topico> topicos;
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuario_perfil",
             joinColumns = @JoinColumn(name = "usuario_id"),
@@ -39,10 +44,47 @@ public class Usuario {
     @OneToMany(mappedBy = "usuario")
     private List<Respuesta> respuestas;
 
-    public Usuario(DatosRegistroUsuario datosRegistroUsuario, Perfil perfil){
+    public Usuario(DatosRegistroUsuario datosRegistroUsuario, Perfil perfil, PasswordEncoder passwordEncoder){
         this.nombre = datosRegistroUsuario.nombre();
         this.correoElectronico = datosRegistroUsuario.correoElectronico();
-        this.contrasena = datosRegistroUsuario.contrasena();
+        this.contrasena = passwordEncoder.encode(datosRegistroUsuario.contrasena());
         this.perfiles.add(perfil);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.perfiles.stream()
+                .map(perfil -> (GrantedAuthority) () -> perfil.getNombre().name())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getPassword() {
+        return contrasena;
+    }
+
+    @Override
+    public String getUsername() {
+        return nombre;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
     }
 }

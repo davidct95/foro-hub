@@ -22,7 +22,7 @@ public class Perfil {
     Long id;
     @Enumerated(EnumType.STRING)
     TipoPerfil nombre;
-    @ManyToMany(mappedBy = "perfiles")
+    @ManyToMany(mappedBy = "perfiles", fetch = FetchType.EAGER)
     List<Usuario> usuarios;
 
     public Perfil(DatosRegistroPerfil datosRegistroPerfil) {

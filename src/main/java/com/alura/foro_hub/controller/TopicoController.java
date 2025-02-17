@@ -58,7 +58,7 @@ public class TopicoController {
         return topicosPage.map(DatosListadoTopicos::new);
     }
 
-    @GetMapping("buscar")
+    @GetMapping("/buscar")
     public ResponseEntity<List<DatosListadoTopicos>> buscarPorCursoYAnio(@RequestParam Long idCurso, @RequestParam int anio) {
         List<Topico> topicos = topicoRepository.buscarPorCursoYAnio(idCurso, anio);
         if(topicos.isEmpty()) {
